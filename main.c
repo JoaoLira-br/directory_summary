@@ -8,6 +8,11 @@
 
 const char * ignorePath[] = {".", "..", ".git", NULL};
 
+const char *get_filename_ext(const char *filename) {
+    const char *dot = strrchr(filename, '.');
+    if(!dot || dot == filename) return "";
+    return dot + 1;
+}
 int isIgnorePath(const char * path){
     int i = 0;
     while(ignorePath[i] != NULL){
@@ -31,6 +36,7 @@ void listFiles(const char* dirname) {
     entity = readdir(dir);
     while (entity != NULL) {
         isIgnorePath(entity->d_name) ? printf("Ignore: ") : printf("Read: ");
+        printf("extension %s\n", get_filename_ext(entity->d_name));
         printf("%hhd %s/%s\n", entity->d_type, dirname, entity->d_name);
         if (entity->d_type == DT_DIR && !isIgnorePath(entity->d_name) ) {
             char path[100] = { 0 };
