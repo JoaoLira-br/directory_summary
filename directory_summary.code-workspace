@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../327/327hw/lira_joao.assignment-1.09/lira_joao.assignment-1.09"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"typeinfo": "c"
+		}
+	}
+}

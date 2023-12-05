@@ -1,54 +1,61 @@
 #include "filetype.h"
 #include "stdlib.h"
 #include "string.h"
+#include "stdio.h"
+
+
+
+
 
 // Path: directory_summary/structs/filetype.c
 
 filetype_t ** FILETYPES;  // array of pointers to filetypes
+SORT_TYPE_T sort_type;
 int lastFileTypeIndex = 0; // index of last filetype in FILETYPES
 size_t currentSize = 0; // current size of FILETYPES
 
-// Function to initialize FILETYPES with an initial size
-void initFILETYPES(size_t initialSize) {
-    currentSize = initialSize * sizeof(filetype_t *);
-    
-    FILETYPES = malloc(initialSize * sizeof(filetype_t *));
+
+void initFileTypes(size_t initialSize) {
+    currentSize = initialSize;
+    FILETYPES = (filetype_t **)malloc(initialSize * sizeof(filetype_t *));
     if (FILETYPES == NULL) {
-        // Handle memory allocation failure
         perror("malloc failed");
+        exit(EXIT_FAILURE); // Exit if allocation fails
     }
-    while(lastFileTypeIndex < initialSize) {
-        FILETYPES[lastFileTypeIndex] = NULL;
-        lastFileTypeIndex++;
+    for (size_t i = 0; i < initialSize; i++) {
+        FILETYPES[i] = NULL;
     }
-    // Initialize elements to NULL or initial values
 }
+// Function to double the size of FILETYPES
 void reallocFILETYPES() {
-    currentSize *= 2;
-
-    FILETYPES = realloc(FILETYPES, sizeof(FILETYPES) * 2);
-    if (FILETYPES == NULL) {
-        // Handle memory allocation failure
+    size_t newSize = currentSize * 2;
+    filetype_t **temp = (filetype_t **)realloc(FILETYPES, newSize * sizeof(filetype_t *));
+    if (temp == NULL) {
         perror("realloc failed");
+        exit(EXIT_FAILURE); // Exit if reallocation fails
     }
-    while(lastFileTypeIndex < currentSize) {
-        FILETYPES[lastFileTypeIndex] = NULL;
-        lastFileTypeIndex++;            
+    FILETYPES = temp;
+    for (size_t i = currentSize; i < newSize; i++) {
+        FILETYPES[i] = NULL;
     }
+    currentSize = newSize;
 }
 
+// Function to insert a new filetype
 void insertFileType(filetype_t * ft) {
-
-    if () {
+    if (lastFileTypeIndex >= currentSize) {
         reallocFILETYPES();
     }
-    FILETYPES[size] = ft;
+    FILETYPES[lastFileTypeIndex++] = ft;
 }
-filetype_t * createFileType(char * name, int size, int count) {
+
+// ... [other parts of the code] ...
+
+filetype_t * createFileType( const char * name, int size) {
     filetype_t * ft = (filetype_t *) malloc(sizeof(filetype_t));
-    ft->name = name;
+    ft->name =  strdup(name);
     ft->size = size;
-    ft->count = count;
+    ft->count = 1;
     return ft;
 }
 
@@ -71,42 +78,21 @@ int compareFileTypeByCount(const void * a, const void * b) {
 }
 
 void sortByName() {
-    qsort(*FILETYPES, sizeof(FILETYPES), sizeof(filetype_t), compareFileTypeByName);
-    SORT_TYPE = NAME;
+    qsort(*FILETYPES, currentSize, sizeof(filetype_t *), compareFileTypeByName);
+    sort_type = NAME;
 }
 void sortBySize() {
-    qsort(*FILETYPES, sizeof(FILETYPES), sizeof(filetype_t), compareFileTypeBySize);
-    SORT_TYPE = SIZE;
+    qsort(*FILETYPES, currentSize, sizeof(filetype_t *), compareFileTypeBySize);
+    sort_type = SIZE;
 }
 void sortByCount() {
-    qsort(*FILETYPES, sizeof(FILETYPES), sizeof(filetype_t), compareFileTypeByCount);
-    SORT_TYPE = COUNT;
+    qsort(*FILETYPES, currentSize, sizeof(filetype_t *), compareFileTypeByCount);
+    sort_type = COUNT;
 }
 
-void destroyFileType(filetype_t * ft) {
-    free(ft->name);
-    free(ft);
-}
 
-void printFileType(filetype_t * ft) {
-    printf("Filetype: %s\n", ft->name);
-    printf("Size: %d\n", ft->size);
-    printf("Count: %d\n", ft->count);
-}
 
-/*
-if the filetype existsFileType, return the index of the filetype in FILETYPES
-else return NULL
-*/
-int existsFileType(char * name){
-    int size = sizeof(FILETYPES) / sizeof(filetype_t *);
-    for (int i = 0; i < size; i++) {
-        if (strcmp(FILETYPES[i]->name, name) == 0) {
-            return i;
-        }
-    }
-    return -1;
-}
+
 
 void incrementSize(int index, int size) {
     filetype_t * ft = FILETYPES[index];
@@ -120,21 +106,48 @@ void incrementCount(int index) {
 }
 
 void printFileTypes() {
-    int size = sizeof(FILETYPES) / sizeof(filetype_t *);
-    for (int i = 0; i < size; i++) {
-        printf("Filetype: %s\n", FILETYPES[i]->name);
-        printf("Size: %d\n", FILETYPES[i]->size);
-        printf("Count: %d\n", FILETYPES[i]->count);
+    size_t i;
+    for (i = 0; i <= lastFileTypeIndex; i++) {
+        if (FILETYPES[i] != NULL) {
+            printf("Filetype: %s\n", FILETYPES[i]->name);
+            printf("Size: %ld\n", FILETYPES[i]->size);
+            printf("Count: %d\n", FILETYPES[i]->count);
+        }
     }
 }
 
+
 void freeFileTypes() {
-    int size = sizeof(FILETYPES) / sizeof(filetype_t *);
-    for (int i = 0; i < size; i++) {
-        free(FILETYPES[i]->name);
-        free(FILETYPES[i]);
+    size_t i;
+    for (i = 0; i <= lastFileTypeIndex; i++) {
+        if(FILETYPES[i] != NULL) {
+            free(FILETYPES[i]->name);
+            free(FILETYPES[i]);
+        }
+        
     }
 }
+
+/*
+if the filetype existsFileType, return the index of the filetype in FILETYPES
+else return -1
+*/
+int existsFileType(const char * name){
+    size_t i;
+    for ( i = 0; i <= lastFileTypeIndex; i++) {
+        if (FILETYPES[i] != NULL && strcmp(FILETYPES[i]->name, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+
+
+// ... [other parts of the code] ...
+
+// Function to initialize FILETYPES with an initial size
 
 
 

@@ -1,4 +1,4 @@
 #!/bin/bash
 make clean
 make
-./dirsumm $1
+gdb ./dirsumm 

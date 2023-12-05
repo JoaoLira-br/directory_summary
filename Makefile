@@ -1,15 +1,16 @@
 
 CC = gcc
-CFLAGS = -Wall -Werror
+CFLAGS = -ggdb -Wall -Werror
 BIN = dirsumm
-OBJS = dirsumm.o dirinfo.o filtype.o
+OBJS = dirsumm.o dirinfo.o filetype.o
 LDFLAGS = -lncurses
 ECHO = echo
+RM = rm -f
 
 -include $(OBJS:.o=.d)
 
 
-all: $(BIN) etags
+all: $(BIN) 
 
 $(BIN): $(OBJS)
 	@$(ECHO) Linking $@
@@ -27,4 +28,4 @@ main: main.c
 	$(CC) $(CFLAGS) -o main main.c
 
 clean:
-	rm -f main
+	@$(RM) *.o a.out $(BIN) *.d TAGS core vgcore.* gmon.out

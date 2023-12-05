@@ -16,23 +16,22 @@ typedef struct filetype {
     int count;
 } filetype_t;
 
-extern const int MAX_FILETYPES;
 extern filetype_t ** FILETYPES;
 extern int lastFileTypeIndex;
 extern size_t currentSize;
-extern SORT_TYPE_T SORT_TYPE;
+extern SORT_TYPE_T sort_type;
 
-
-filetype_t * createFileType(char * name, int size, int count);
+void initFileTypes(size_t initialSize);
+filetype_t * createFileType( const char * name, int size);
 void insertFileType(filetype_t * ft);
 void incrementSize(int index, int size);
 void incrementCount(int index);
 void sortByName();
 void sortBySize();
 void sortByCount();
-int existsFileType(char * name);
-void destroyFileType(FileType_t * ft);
-void printFileType(FileType_t * ft);
+int existsFileType(const char * name);
+void freeFileTypes();
+void printFileTypes();
 
 
 #endif // FILETYPE_H
